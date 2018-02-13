@@ -1,24 +1,65 @@
-import React from 'react';
+import _ from "lodash";
+
+import React, {Component} from 'react';
 
 //to import to the DOM, you must also import react-dom
 import ReactDOM from "react-dom";
 import SearchBar from "./components/search_bar"; //./ means the current directory. then go into components folder. 
+import YTSearch from "youtube-api-search";
+import VideoList from "./components/video_list";
+import VideoDetail from "./components/video_detail";
+
 
 const API_KEY = "AIzaSyAtAJeywO7pdI_hAPEpMZgoI5UC6WyXuTw";
 
 
-
 // Create a new component. This component should produce HTML
 
-const App = () => {
-	return ( <div>
+class App extends Component  {
+	constructor(props){
+		super(props);
 
-	<SearchBar/>
+		this.state = {
+			videos: [],
+			selectedVideo: null
+		};
 
-	</div>
-	) ;
-	
+		this.videoSearch("music") //this is the inital search/scrape
+
+	}
+
+
+videoSearch(term){
+			YTSearch({key: API_KEY, term: term}, (videos) => {
+			
+			this.setState({
+				videos: videos,
+				selectedVideo: videos[0]
+			});
+			
+			
+		});	
+
 }
+
+	render(){
+		const videoSearch = _.debounce((term) => {this.videoSearch(term) }, 300);
+
+
+		return (
+		<div>
+
+		<SearchBar onSearchTermChange = {videoSearch}/>
+		<VideoDetail video= {this.state.selectedVideo}/>
+		<VideoList 
+			onVideoSelect= {selectedVideo => this.setState({selectedVideo})}
+			videos= {this.state.videos}/>
+		
+
+		</div>
+		) ;
+	}	
+	}
 
 
 
